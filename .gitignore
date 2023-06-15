@@ -1,6 +1,11 @@
 **/.idea/
 .env
 venv/
-__pycache__
+__pycache__/
+*.log
 *.pyc
-*.sqlite3
+*.pot
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media
