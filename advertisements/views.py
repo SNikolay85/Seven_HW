@@ -13,6 +13,7 @@ class AdvertisementViewSet(ModelViewSet):
     throttle_classes = [UserRateThrottle, AnonRateThrottle]
     # TODO: настройте ViewSet, укажите атрибуты для кверисета,
     #   сериализаторов и фильтров
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
