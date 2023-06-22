@@ -34,17 +34,14 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         # обратите внимание на `context` – он выставляется автоматически
         # через методы ViewSet.
         # само поле при этом объявляется как `read_only=True`
-        print(validated_data)
         validated_data["creator"] = self.context["request"].user
-        print(validated_data)
-        print(validated_data['creator'])
         return super().create(validated_data)
 
     def validate(self, data):
         """Метод для валидации. Вызывается при создании и обновлении."""
-
-        if self.creator['id'] not in data['creator'].id:
-            raise ValidationError('Не тот пользователь')
-        # TODO: добавьте требуемую валидацию
+        print(self.request.status)
+        count_open = Advertisement.objects.filter(status='OPEN').count()
+        if count_open >= 10 and data['status'] != 'CLOSED':
+            raise ValidationError('Превышен лимит открытых объявлений.')
 
         return data
