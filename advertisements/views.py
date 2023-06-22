@@ -1,13 +1,13 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework.viewsets import ModelViewSet
 
 from advertisements.filters import AdvertisementFilter
-from advertisements.models import Advertisement
+from advertisements.models import Advertisement, AdvertisementStatusChoices, Favorite
 from advertisements.permissions import IsOwner
-from advertisements.serializers import AdvertisementSerializer
+from advertisements.serializers import AdvertisementSerializer, FavoriteSerializer
 
 
 class AdvertisementViewSet(ModelViewSet):
@@ -15,20 +15,46 @@ class AdvertisementViewSet(ModelViewSet):
     queryset = Advertisement.objects.all()
     serializer_class = AdvertisementSerializer
     filterset_class = AdvertisementFilter
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # filterset_fields = ['creator']
-    # search_fields = ['description', 'title']
-    # ordering_fields = ['id', 'title']
     throttle_classes = [UserRateThrottle, AnonRateThrottle]
-    # TODO: настройте ViewSet, укажите атрибуты для кверисета,
-    #   сериализаторов и фильтров
+
 
     def get_permissions(self):
         """Получение прав для действий."""
-        if self.action == "create":
-            return [IsAuthenticated()]
-        if self.action in ["update", "partial_update", "destroy"]:
-            if self.request.user.is_staff:
-                return [IsAdminUser()]
+        if self.action in ["create", "update", "partial_update", "destroy"]:
             return [IsAuthenticated(), IsOwner()]
+        elif self.action in ["add_favorite", "favorites"]:
+            return [IsAuthenticated()]
         return []
+
+
+    def get_queryset(self):
+        queryset = Advertisement.objects.all()
+        if not self.request.user.is_authenticated:
+            queryset = queryset.exclude(status=AdvertisementStatusChoices.DRAFT)
+        else:
+            queryset = queryset.filter(creator=self.request.user) | queryset.exclude(status='DRAFT')
+        return queryset
+
+
+    @action(detail=True, methods=['post'])
+    def add_favorite(self, request, pk=None):
+        advertisement = self.get_object()
+        if advertisement.creator == request.user:
+            return Response({'Ошибка': 'Не возможно добавить в избранное собственное объявление'})
+        favorite = Favorite.objects.create(user=request.user, advertisement=advertisement)
+        serializer = FavoriteSerializer(favorite)
+        return Response(serializer.data)
+
+
+    @action(detail=True, methods=['get'])
+    def favorites(self, request):
+        print('tyt')
+        favorites = Favorite.objects.filter(user=request.user)
+        advertisements = [favorite.advertisement for favorite in favorites]
+        serializer = AdvertisementSerializer(advertisements, many=True)
+        return Response(serializer.data)
+
+
+# class FavoriteViewSet(ModelViewSet):
+#     queryset = Favorite.objects.all()
+#     serializer_class = FavoriteSerializer

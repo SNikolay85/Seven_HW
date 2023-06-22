@@ -1,6 +1,6 @@
 # примеры API-запросов
-@token = 2f205dcfef1f39c93a3000303f4cb5b648c3fdf6
-
+#@token = e9f8f8e8f35775bb6938629161f78d9b905c6309
+@token = 1095e1f49611c2947dabf5172e89a7bbdd66ac72
 @baseUrl = http://localhost:8000/api
 
 # получение объявлений
@@ -15,14 +15,14 @@ Content-Type: application/json
 Authorization: Token {{token}}
 
 {
-  "title": "Шкаф IKEA",
-  "description": "Срочно"
+  "title": "Товар12",
+  "description": "Продажа"
 }
 
 ###
 
 # попытка поменять объявление
-PATCH {{baseUrl}}/advertisements/1/
+PATCH {{baseUrl}}/advertisements/33/
 Content-Type: application/json
 Authorization: Token {{token}}
 
@@ -33,11 +33,31 @@ Authorization: Token {{token}}
 ###
 
 # фильтрация по создателю
-GET {{baseUrl}}/advertisements/?creator=3
+GET {{baseUrl}}/advertisements/?creator=2
+Content-Type: application/json
+
+###
+
+# фильтрация по статусу
+GET {{baseUrl}}/advertisements/?status=CLOSED
 Content-Type: application/json
 
 ###
 
 # фильтрация по дате
-GET {{baseUrl}}/advertisements/?created_at_before=2020-10-01
+GET {{baseUrl}}/advertisements/?created_at_before=2023-06-21
 Content-Type: application/json
+
+###
+
+# добавление в избранное
+POST {{baseUrl}}/advertisements/2/add_favorite/
+Content-Type: application/json
+Authorization: Token {{token}}
+
+###
+
+# просмотр избранного
+GET {{baseUrl}}/advertisements/favorites/
+Content-Type: application/json
+#Authorization: Token {{token}}
