@@ -22,7 +22,7 @@ Authorization: Token {{token}}
 ###
 
 # попытка поменять объявление
-PATCH {{baseUrl}}/advertisements/33/
+PATCH {{baseUrl}}/advertisements/39/
 Content-Type: application/json
 Authorization: Token {{token}}
 
@@ -60,4 +60,17 @@ Authorization: Token {{token}}
 # просмотр избранного
 GET {{baseUrl}}/advertisements/favorites/
 Content-Type: application/json
-#Authorization: Token {{token}}
+Authorization: Token {{token}}
+
+###
+
+# черновик
+POST {{baseUrl}}/advertisements/
+Content-Type: application/json
+Authorization: Token {{token}}
+
+{
+  "title": "Товар50",
+  "description": "Продажа",
+  "status": "DRAFT"
+}

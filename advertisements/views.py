@@ -46,15 +46,11 @@ class AdvertisementViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
-    @action(detail=True, methods=['get'])
+    @action(detail=False, methods=['get'])
     def favorites(self, request):
-        print('tyt')
         favorites = Favorite.objects.filter(user=request.user)
         advertisements = [favorite.advertisement for favorite in favorites]
         serializer = AdvertisementSerializer(advertisements, many=True)
         return Response(serializer.data)
 
 
-# class FavoriteViewSet(ModelViewSet):
-#     queryset = Favorite.objects.all()
-#     serializer_class = FavoriteSerializer
